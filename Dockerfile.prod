@@ -1,0 +1,23 @@
+# build environment
+FROM node:12.18.4-alpine as builder
+RUN echo -e "http://nl.alpinelinux.org/alpine/v3.5/main\nhttp://nl.alpinelinux.org/alpine/v3.11/community" > /etc/apk/repositories
+#COPY APKINDEX.tar.gz .
+#RUN  tar -xzf APKINDEX.tar.gz && rm APKINDEX.tar.gz
+RUN apk add --no-cache git 
+ENV PATH /app/node_modules/.bin:$PATH
+
+RUN git --version
+WORKDIR /app
+COPY package.json ./
+RUN node -v
+RUN npm install --no-cache
+COPY . ./
+COPY .env.Example ./.env
+RUN npm run build
+
+# production environment
+FROM nginx:stable-alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

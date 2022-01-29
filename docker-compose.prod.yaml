@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+
+  typescript-boilerplate:
+    container_name: typescript-boilerplate-container
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - '3000:80'
